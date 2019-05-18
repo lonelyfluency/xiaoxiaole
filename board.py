@@ -52,14 +52,28 @@ class Board:
         else:
             return False
 
+    def have_cancle_env(self):
+        # 给环境用的判断更新完是否能继续消除，因此不含两个特殊交换，凤凰交换
+        # 普通三及以上消
+        for i in range(self.height):
+            for j in range(2, self.width):
+                if self.animal_mat[i][j - 2] == self.animal_mat[i][j - 1] == self.animal_mat[i][j] and \
+                        self.animal_mat[i][j] != 0:
+                    return True
+        for i in range(self.width):
+            for j in range(2, self.height):
+                if self.animal_mat[j-2][i] == self.animal_mat[j-1][i] == self.animal_mat[j][i] and \
+                 self.animal_mat[j][i] != 0:
+                    return True
+
+
     def have_cancle(self):
         # 看行
         # 普通三及以上消
         for i in range(self.height):
             for j in range(2,self.width):
-                if self.animal_mat[i][j-2] == self.animal_mat[i][j-1] and \
-                 self.animal_mat[i][j-1] == self.animal_mat[i][j-2] and \
-                        self.animal_mat[i][j] != 0:
+                if self.animal_mat[i][j-2] == self.animal_mat[i][j-1] == self.animal_mat[i][j] and \
+                 self.animal_mat[i][j] != 0:
                     return True
         # 两个挨着的特效
         for i in range(self.height):
@@ -72,8 +86,7 @@ class Board:
         # 普通三消及以上
         for i in range(self.width):
             for j in range(2, self.height):
-                if self.animal_mat[j-2][i] == self.animal_mat[j-1][i] and \
-                 self.animal_mat[j-1][i] == self.animal_mat[j][i] and \
+                if self.animal_mat[j-2][i] == self.animal_mat[j-1][i] == self.animal_mat[j][i] and \
                  self.animal_mat[j][i] != 0:
                     return True
         # 两个挨着的特效
@@ -111,9 +124,12 @@ class Board:
             fua = self.find_first_up_ani(empty_block[0],empty_block[1])
             if fua[0] == -1:
                 self.animal_mat[empty_block[0]][empty_block[1]] = np.random.randint(1,6)
+                self.spe_mat[empty_block[0]][empty_block[1]] = 0
             else:
                 self.animal_mat[empty_block[0]][empty_block[1]] = self.animal_mat[fua[0]][fua[1]]
+                self.spe_mat[empty_block[0]][empty_block[1]] = self.spe_mat[fua[0]][fua[1]]
                 self.animal_mat[fua[0]][fua[1]] = -1
+                self.spe_mat[fua[0]][fua[1]] = 0
                 empty_list.append(fua)
 
 
@@ -205,6 +221,7 @@ class Board:
                             if k != phoenix:
                                 self.animal_mat[i][k] = -1
                         self.score += 5 * 3
+                        break
                     # 里面有横消特效
                     for k in range(j-4,j+1):
                         if self.spe_mat[i][k] == 1:
@@ -229,6 +246,7 @@ class Board:
                                     self.animal_mat[m][k] = -1
                                     col_ani_cnt += 1
                             self.score += (5 + col_ani_cnt) * 2
+                            break
                     # 里面有爆炸特效
                     for k in range(j-4,j+1):
                         if self.spe_mat[i][k] == 3:
@@ -242,6 +260,7 @@ class Board:
                                     self.animal_mat[m][n] = -1
                                     boom_ani_cnt += 1
                             self.score += (5 + boom_ani_cnt) * 2.5
+                            break
                 j += 1
 
         #横4
@@ -259,6 +278,7 @@ class Board:
                             if k != spe:
                                 self.animal_mat[i][k] = -1
                         self.score += 4 * 3
+                        break
                     # 里面有横消特效
                     for k in range(j-3,j+1):
                         if self.spe_mat[i][k] == 1:
@@ -285,6 +305,7 @@ class Board:
                                     self.animal_mat[m][k] = -1
                                     col_ani_cnt += 1
                             self.score += (4 + col_ani_cnt) * 2
+                            break
                     # 里面有爆炸特效
                     for k in range(j-3,j+1):
                         if self.spe_mat[i][k] == 3:
@@ -299,6 +320,7 @@ class Board:
                                     self.animal_mat[m][n] = -1
                                     boom_ani_cnt += 1
                             self.score += (4 + boom_ani_cnt) * 2.5
+                            break
                 j += 1
         #横3
         for i in range(self.height):
@@ -311,6 +333,7 @@ class Board:
                         for k in range(j-2,j+1):
                             self.animal_mat[i][k] = -1
                         self.score += 3
+                        break
                     # 里面有横消特效
                     for k in range(j-2,j+1):
                         if self.spe_mat[i][k] == 1:
@@ -331,6 +354,7 @@ class Board:
                                     self.animal_mat[m][k] = -1
                                     col_ani_cnt += 1
                             self.score += (3 + col_ani_cnt) * 2
+                            break
                     # 里面有爆炸特效
                     for k in range(j-2,j+1):
                         if self.spe_mat[i][k] == 3:
@@ -342,6 +366,7 @@ class Board:
                                     self.animal_mat[m][n] = -1
                                     boom_ani_cnt += 1
                             self.score += boom_ani_cnt * 2.5
+                            break
                 j += 1
         #纵五
         for i in range(self.width):
@@ -357,6 +382,7 @@ class Board:
                             if k != phoenix:
                                 self.animal_mat[k][i] = -1
                         self.score += 5 * 3
+                        break
                     # 里面有横消特效
                     for k in range(j-4,j+1):
                         if self.spe_mat[k][i] == 1:
@@ -368,6 +394,7 @@ class Board:
                                     self.animal_mat[k][m] = -1
                                     row_ani_cnt += 1
                             self.score += row_ani_cnt * 2
+                            break
                     # 里面有纵消特效
                     for k in range(j-4,j+1):
                         if self.spe_mat[k][i] == 2:
@@ -394,6 +421,7 @@ class Board:
                                     self.animal_mat[m][n] = -1
                                     boom_ani_cnt += 1
                             self.score += (5 + boom_ani_cnt) * 2.5
+                            break
                 j += 1
         #纵四
         for i in range(self.width):
@@ -404,12 +432,14 @@ class Board:
                     # 4个普通的
                     if self.spe_mat[j-3][i] == self.spe_mat[j-2][i] == self.spe_mat[j-1][i] == self.spe_mat[j][i] == 0:
                         spe = np.random.randint(0,4)+j-3
+                        print("spe:",spe)
                         self.animal_mat[spe][i] = self.animal_mat[j][i]
                         self.spe_mat[spe][i] = 2
                         for k in range(j-3,j+1):
                             if k != spe:
                                 self.animal_mat[k][i] = -1
                         self.score += 4 * 3
+                        break
                     # 里面有横消特效
                     for k in range(j-3,j+1):
                         if self.spe_mat[k][i] == 1:
@@ -422,6 +452,7 @@ class Board:
                                     self.animal_mat[k][m] = -1
                                     row_ani_cnt += 1
                             self.score += row_ani_cnt * 2
+                            break
                     # 里面有纵消特效
                     for k in range(j-3,j+1):
                         if self.spe_mat[k][i] == 2:
@@ -450,6 +481,7 @@ class Board:
                                     self.animal_mat[m][n] = -1
                                     boom_ani_cnt += 1
                             self.score += boom_ani_cnt * 2.5
+                            break
                 j += 1
         #纵三
         for i in range(self.width):
@@ -462,6 +494,7 @@ class Board:
                         for k in range(j-2,j+1):
                             self.animal_mat[k][i] = -1
                         self.score += 3
+                        break
                     # 里面有横消特效
                     for k in range(j-2,j+1):
                         if self.spe_mat[k][i] == 1:
@@ -471,6 +504,7 @@ class Board:
                                     self.animal_mat[k][m] = -1
                                     row_ani_cnt += 1
                             self.score += row_ani_cnt * 2
+                            break
                     # 里面有纵消特效
                     for k in range(j-2,j+1):
                         if self.spe_mat[k][i] == 2:
@@ -491,6 +525,7 @@ class Board:
                                     self.animal_mat[m][n] = -1
                                     boom_ani_cnt += 1
                             self.score += boom_ani_cnt * 2.5
+                            break
                 j += 1
         #丁字（上下左右）
         #上丁
@@ -586,8 +621,9 @@ class Board:
 
         self.drop()
 
-        if self.have_cancle():
+        if self.have_cancle_env():
             self.update()
+
 
 
     def exchange(self, p1, p2):
@@ -599,8 +635,19 @@ class Board:
 
 
 if __name__ == "__main__":
-    bd = Board(7,7)
-    mat_test = np.random.randint(-1,5,(7,7))
-    mat_test = mat_test.tolist()
+    bd = Board(5,5)
+    # mat_test = np.random.randint(-1,5,(7,7))
+    # mat_test = mat_test.tolist()
+    mat_test = [[1,2,3,4,5],[2,3,1,4,5],[2,3,1,5,4],[2,2,4,5,1],[4,3,4,2,1]]
+
     bd.get_mat(mat_test)
     bd.show()
+    print(bd.spe_mat)
+    print()
+    bd.exchange((0,0),(0,1))
+    bd.show()
+    print()
+    bd.exchange((0,1),(0,2))
+    bd.show()
+    print(bd.score)
+    print(bd.spe_mat)
