@@ -635,39 +635,53 @@ class Board:
 
     def get_action_space(self):
         action_space = []
-        for i in range(1,self.height-2):
-            for j in range(1,self.width-1):
+        for i in range(self.height):
+            for j in range(self.width):
                 if self.animal_mat[i][j] != 0:
-                    if self.animal_mat[i][j] == self.animal_mat[i][j+1]:
-                        if (self.animal_mat[i][j] in [self.animal_mat[i-1][j-1], self.animal_mat[i+1][j-1]] \
-                            and self.animal_mat[i][j-1] != 0) or \
-                            (self.animal_mat[i][j] in [self.animal_mat[i-1][j+2], self.animal_mat[i+1][j+2]] \
-                            and self.animal_mat[i][j+2] != 0):
-                            # a     b
-                            #   a a
-                            # c     d
-                            action_space.append(((i-1,j-1),(i,j-1)))
-                            break
+                    if j+1 < self.width and self.animal_mat[i][j] == self.animal_mat[i][j+1]:
+                        if i-1 >= 0 and j-1 >= 0:
+                            if self.animal_mat[i][j] in [self.animal_mat[i-1][j-1], self.animal_mat[i+1][j-1]] \
+                                and self.animal_mat[i][j-1] != 0:
+                                action_space.append(((i - 1, j - 1), (i, j - 1)) if self.animal_mat[i][j] == self.animal_mat[i-1][j-1] else ((i+1,j-1),(i,j-1)))
+                                break
+                        if i-1>=0 and j+2<self.width:
+                            if self.animal_mat[i][j] in [self.animal_mat[i-1][j+2], self.animal_mat[i+1][j+2]] \
+                                and self.animal_mat[i][j+2] != 0:
+                                # a     b
+                                #   a a
+                                # c     d
+                                action_space.append(((i,j+2),(i-1,j+2)) if self.animal_mat[i][j] == self.animal_mat[i-1][j+2] else ((i,j+2),(i+1,j+2)))
+                                break
 
-                    if self.animal_mat[i][j] == self.animal_mat[i+1][j]:
-                        if (self.animal_mat[i][j] in [self.animal_mat[i-1][j-1],self.animal_mat[i-1][j+1]] \
-                            and self.animal_mat[i-1][j] != 0) or \
-                            (self.animal_mat[i][j] in [self.animal_mat[i+2][j-1],self.animal_mat[i+2][j+1]] \
-                            and self.animal_mat[i+2][j] != 0):
+                    elif i+1<self.height and j+1<self.width and self.animal_mat[i][j] == self.animal_mat[i+1][j]:
+                        if i-1 >= 0 and j-1 >= 0:
+                            if self.animal_mat[i][j] in [self.animal_mat[i-1][j-1],self.animal_mat[i-1][j+1]] \
+                                and self.animal_mat[i-1][j] != 0:
+                                action_space.append(
+                                    ((i-1, j -1), (i -1, j)) if self.animal_mat[i][j] == self.animal_mat[i - 1][
+                                        j -1] else ((i-1, j), (i-1, j + 1)))
+                                break
+                        if i+2<self.height and j-1 >= 0:
+                            if self.animal_mat[i][j] in [self.animal_mat[i+2][j-1],self.animal_mat[i+2][j+1]] \
+                                and self.animal_mat[i+2][j] != 0:
+                                action_space.append(
+                                    ((i+2, j-1), (i+2, j)) if self.animal_mat[i][j] == self.animal_mat[i+2][
+                                        j -1] else ((i+2, j), (i+2, j + 1)))
+                                break
                             # a b
                             #  a
                             #  a
                             # c d
-                            action_space.append(((i-1,j-1),(i-1,j)))
-                            break
+
                     else:
-                        if self.animal_mat[i - 1][j - 1] == self.animal_mat[i][j]:
-                            if self.animal_mat[i][j] == self.animal_mat[i - 1][j + 1] and self.animal_mat[i - 1][j] != 0:
-                                action_space.append(((i,j), (i-1,j)))
-                                break
-                            if self.animal_mat[i][j] == self.animal_mat[i + 1][j - 1] and self.animal_mat[i][j - 1] != 0:
-                                action_space.append(((i,j-1), (i,j)))
-                                break
+                        if i-1>=0 and j-1>=0 and i+1<self.height and j+1<self.width:
+                            if self.animal_mat[i - 1][j - 1] == self.animal_mat[i][j]:
+                                if self.animal_mat[i][j] == self.animal_mat[i - 1][j + 1] and self.animal_mat[i - 1][j] != 0:
+                                    action_space.append(((i,j), (i-1,j)))
+                                    break
+                                if self.animal_mat[i][j] == self.animal_mat[i + 1][j - 1] and self.animal_mat[i][j - 1] != 0:
+                                    action_space.append(((i,j-1), (i,j)))
+                                    break
                             # a   a      a   b
                             #
                             #   a          a
@@ -675,7 +689,7 @@ class Board:
                             # c          a
 
 
-                    if self.animal_mat[i][j] == self.animal_mat[i + 1][j + 1]:
+                    if i+1<self.height and j+1<self.width and self.animal_mat[i][j] == self.animal_mat[i + 1][j + 1]:
                         if self.animal_mat[i][j] == self.animal_mat[i - 1][j + 1] and self.animal_mat[i][j + 1] != 0:
                             action_space.append(((i,j), (i,j+1)))
                             break
@@ -688,6 +702,7 @@ class Board:
                            #
                            # b   a      a   a
         return action_space
+
 
 
 if __name__ == "__main__":
