@@ -636,7 +636,7 @@ class Board:
     def get_action_space(self):
         action_space = []
         for i in range(1,self.height-2):
-            for j in range(1,self.width-2):
+            for j in range(1,self.width-1):
                 if self.animal_mat[i][j] != 0:
                     if self.animal_mat[i][j] == self.animal_mat[i][j+1]:
                         if (self.animal_mat[i][j] in [self.animal_mat[i-1][j-1], self.animal_mat[i+1][j-1]] \
@@ -661,7 +661,7 @@ class Board:
                             action_space.append(((i-1,j-1),(i-1,j)))
                             break
                     else:
-                        if self.animal_mat[i - 1][j - 1] == self.animal[i][j]:
+                        if self.animal_mat[i - 1][j - 1] == self.animal_mat[i][j]:
                             if self.animal_mat[i][j] == self.animal_mat[i - 1][j + 1] and self.animal_mat[i - 1][j] != 0:
                                 action_space.append(((i,j), (i-1,j)))
                                 break
@@ -687,6 +687,7 @@ class Board:
                            #   a          a
                            #
                            # b   a      a   a
+        return action_space
 
 
 if __name__ == "__main__":
@@ -706,3 +707,4 @@ if __name__ == "__main__":
     bd.show()
     print(bd.score)
     print(bd.spe_mat)
+    print(bd.get_action_space())
