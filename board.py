@@ -19,6 +19,7 @@ class Board:
             self.spe_mat.append(tmp)
 
         self.score = 0
+        self.action_space = []
         self.animal_num = [0]*7
 
     def show(self):
@@ -701,7 +702,51 @@ class Board:
                            #   a          a
                            #
                            # b   a      a   a
+
+                if self.animal_mat[i][j] == 7:
+                    if i-1 > 0 and self.animal_mat[i-1][j] != 0:
+                        action_space.append(((i,j),(i-1,j)))
+                    if i+1<self.height and self.animal_mat[i+1][j] != 0:
+                        action_space.append(((i,j),(i+1,j)))
+                    if j-1>0 and self.animal_mat[i][j-1] != 0:
+                        action_space.append(((i,j),(i,j-1)))
+                    if j+1<self.width and self.animal_mat[i][j+1] != 0:
+                        action_space.append(((i,j),(i,j+1)))
+                    # 凤凰
+
+                if self.spe_mat[i][j] != 0 and self.spe_mat[i][j]!=4:
+                    if i-1>0 and self.spe_mat[i-1][j] != 0 and self.spe_mat[i-1][j] != 4:
+                        action_space.append(((i, j), (i - 1, j)))
+                    if i+1<self.height and self.spe_mat[i+1][j] != 0 and self.spe_mat[i+1][j] != 4:
+                        action_space.append(((i, j), (i + 1, j)))
+                    if j-1>0 and self.spe_mat[i][j-1] != 0 and self.spe_mat[i][j-1] != 4:
+                        action_space.append(((i,j),(i,j-1)))
+                    if j+1<self.width and self.spe_mat[i][j+1] != 0 and self.spe_mat[i][j+1] != 4:
+                        action_space.append(((i,j),(i,j+1)))
+                    # 挨着的特效
+
+        self.action_space = action_space
         return action_space
+
+    def generate_rd_pos(self):
+        swap1_h = np.random.randint(0, self.height)
+        swap1_w = np.random.randint(0, self.width)
+
+        swap2_h = np.random.randint(0, self.height)
+        swap2_w = np.random.randint(0, self.width)
+
+        return (swap1_h,swap1_w), (swap2_h,swap2_w)
+
+    def reshuffle(self):
+        if len(self.action_space) > 0:
+            return
+
+        p1, p2 = self.generate_rd_pos()
+        if self.animal_mat[p1[0]][p1[1]] != 0 and self.animal_mat[p2[0]][p2[1]] != 0:
+            self.animal_mat[p1[0]][p1[1]],self.animal_mat[p2[0]][p2[1]] = self.animal_mat[p2[0]][p2[1]],self.animal_mat[p1[0]][p1[1]]
+            self.spe_mat[p1[0]][p1[1]], self.spe_mat[p2[0]][p2[1]] = self.spe_mat[p2[0]][p2[1]], self.spe_mat[p1[0]][p1[1]]
+        else:
+            self.reshuffle()
 
 
 
