@@ -329,6 +329,7 @@ if __name__ == '__main__':
     model = DDPG()
 
     history = model.train(200, 128)
+    model.save_history(history, 'ddpg.csv')
 
     model.load()
     model.play()
