@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class Board:
     def __init__(self,width,height):
         self.width = width
@@ -748,7 +747,52 @@ class Board:
         else:
             self.reshuffle()
 
+    def Conv2(self, img, kernel):
+        # img：输入图片；W,H：图片的宽和高；kernel：卷积核。
+        # return：和输入图像尺寸大小相同的feature map；
+        # 卷积大小固定为3*3卷积，这里因为固定了卷积大小，所以写代码前可以直接确定：卷积步长为1，四周个填充一排0
+        H,W = img.shape[0],img.shape[1]
+        col = np.zeros(H)
+        raw = np.zeros(W + 2)
+        img = np.insert(img, W, values=col, axis=1)
+        img = np.insert(img, 0, values=col, axis=1)
+        img = np.insert(img, H, values=raw, axis=0)
+        img = np.insert(img, 0, values=raw, axis=0)
+        res = np.zeros([H, W])  ##直接新建一个全零数组，省去了后边逐步填充数组的麻烦
+        for i in range(H):
+            for j in range(W):
+                temp = img[i:i + 3, j:j + 3]
+                temp = np.multiply(temp, kernel)
+                res[i][j] = temp.sum()
 
+        return res
+
+
+
+    def get_state(self):
+
+        state_mat = np.array(self.animal_mat)
+        der = [[0,-1,0],[-1,4,-1],[0,-1,0]]
+        ker = [[0.0947416,0.118318,0.0947416],[0.118318,0.147761,0.118318],[0.0947416,0.118318,0.0947416]]
+        dern = np.array(der)
+        kern = np.array(ker)
+        state = self.Conv2(state_mat,dern)
+        state = self.Conv2(state,kern)
+        state = self.Conv2(state,dern)
+        state = self.Conv2(state,kern)
+        state = np.reshape(state,(1,self.height*self.width))
+
+        return state[0]
+
+    def step(self,action):
+        old_score = self.score
+        self.exchange(action[0],action[1])
+        return self.get_state(), self.score-old_score,False
+
+    def reset(self):
+        new_mat = np.random.randint(-1,7,(7,7))
+        new_mat = new_mat.tolist()
+        self.get_mat(new_mat)
 
 if __name__ == "__main__":
     bd = Board(5,5)
@@ -768,3 +812,4 @@ if __name__ == "__main__":
     print(bd.score)
     print(bd.spe_mat)
     print(bd.get_action_space())
+    print(bd.get_state())

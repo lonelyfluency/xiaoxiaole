@@ -270,6 +270,7 @@ class DDPG(DRL):
                 # actor action
                 action = self.get_action(x)
                 observation, reward, done, _ = self.env.step(action)
+                print("obs:",observation,"rew:",reward,"dn:",done)
                 # add data to experience replay.
                 reward_sum += reward
                 self.remember(x[0], action, reward, observation, done)
@@ -308,7 +309,7 @@ class DDPG(DRL):
         random_episodes = 0
 
         while random_episodes < 10:
-            self.env.render()
+            # self.env.render()
 
             x = observation.reshape(-1, 3)
             action = self.actor.predict(x)[0]
