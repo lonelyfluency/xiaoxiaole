@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-import gym
+from board import *
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 class DRL:
     def __init__(self):
-        self.env = gym.make('CartPole-v0')
+        self.env = Board(7,7)
 
         if not os.path.exists('model'):
             os.mkdir('model')
@@ -26,7 +26,7 @@ class DRL:
         random_episodes = 0
 
         while random_episodes < 10:
-            self.env.render()
+            # self.env.render()
 
             x = observation.reshape(-1, 4)
             if m == 'pg':
@@ -47,7 +47,7 @@ class DRL:
                 reward_sum = 0
                 observation = self.env.reset()
 
-        self.env.close()
+        # self.env.close()
 
     def plot(self, history):
         x = history['episode']

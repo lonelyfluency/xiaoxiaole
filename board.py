@@ -20,6 +20,8 @@ class Board:
         self.score = 0
         self.action_space = []
         self.animal_num = [0]*7
+        self.last_act_space = []
+        self.same_cnt = 0
 
     def show(self):
         for i in range(self.height):
@@ -639,12 +641,12 @@ class Board:
             for j in range(self.width):
                 if self.animal_mat[i][j] != 0:
                     if j+1 < self.width and self.animal_mat[i][j] == self.animal_mat[i][j+1]:
-                        if i-1 >= 0 and j-1 >= 0:
+                        if i-1 >= 0 and j-1 >= 0 and i+1<self.height:
                             if self.animal_mat[i][j] in [self.animal_mat[i-1][j-1], self.animal_mat[i+1][j-1]] \
                                 and self.animal_mat[i][j-1] != 0:
                                 action_space.append(((i - 1, j - 1), (i, j - 1)) if self.animal_mat[i][j] == self.animal_mat[i-1][j-1] else ((i+1,j-1),(i,j-1)))
                                 break
-                        if i-1>=0 and j+2<self.width:
+                        if i-1>=0 and i+1<self.height and j+2<self.width:
                             if self.animal_mat[i][j] in [self.animal_mat[i-1][j+2], self.animal_mat[i+1][j+2]] \
                                 and self.animal_mat[i][j+2] != 0:
                                 # a     b
@@ -725,7 +727,11 @@ class Board:
                     # 挨着的特效
 
         self.action_space = action_space
-        return action_space
+        if len(action_space)==0:
+            self.reshuffle()
+            self.action_space = self.get_action_space()
+
+        return self.action_space
 
     def generate_rd_pos(self):
         swap1_h = np.random.randint(0, self.height)
@@ -786,30 +792,48 @@ class Board:
 
     def step(self,action):
         old_score = self.score
-        self.exchange(action[0],action[1])
+        act_space = self.get_action_space()
+        if action >= len(act_space):
+            a = len(act_space)-1
+        elif action < 0:
+            a = 0
+        else:
+            a = action
+        act = act_space[a]
+        if self.last_act_space == act_space:
+            self.same_cnt += 1
+        else:
+            self.same_cnt = 0
+        self.last_act_space = act_space
+
+        self.exchange(act[0],act[1])
+        if self.same_cnt > 5:
+            return self.get_state(), self.score-old_score,True
+
         return self.get_state(), self.score-old_score,False
 
     def reset(self):
         new_mat = np.random.randint(-1,7,(7,7))
         new_mat = new_mat.tolist()
         self.get_mat(new_mat)
+        return self.get_state()
 
-if __name__ == "__main__":
-    bd = Board(5,5)
-    # mat_test = np.random.randint(-1,5,(7,7))
-    # mat_test = mat_test.tolist()
-    mat_test = [[1,2,3,4,5],[2,3,1,4,5],[2,3,1,5,4],[2,2,4,5,1],[4,3,4,2,1]]
-
-    bd.get_mat(mat_test)
-    bd.show()
-    print(bd.spe_mat)
-    print()
-    bd.exchange((0,0),(0,1))
-    bd.show()
-    print()
-    bd.exchange((0,1),(0,2))
-    bd.show()
-    print(bd.score)
-    print(bd.spe_mat)
-    print(bd.get_action_space())
-    print(bd.get_state())
+# if __name__ == "__main__":
+#     bd = Board(5,5)
+#     # mat_test = np.random.randint(-1,5,(7,7))
+#     # mat_test = mat_test.tolist()
+#     mat_test = [[1,2,3,4,5],[2,3,1,4,5],[2,3,1,5,4],[2,2,4,5,1],[4,3,4,2,1]]
+#
+#     bd.get_mat(mat_test)
+#     bd.show()
+#     print(bd.spe_mat)
+#     print()
+#     bd.exchange((0,0),(0,1))
+#     bd.show()
+#     print()
+#     bd.exchange((0,1),(0,2))
+#     bd.show()
+#     print(bd.score)
+#     print(bd.spe_mat)
+#     print(bd.get_action_space())
+#     print(bd.get_state())

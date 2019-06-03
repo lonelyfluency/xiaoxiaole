@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 import random
-import gym
 from collections import deque
-
+from board import *
 import numpy as np
 import tensorflow as tf
 
@@ -23,8 +22,8 @@ class DDPG(DRL):
         super(DDPG, self).__init__()
 
         self.sess = K.get_session()
-        self.env = gym.make('Pendulum-v0')
-        self.bound = self.env.action_space.high[0]
+        self.env = Board(7,7)
+        self.bound = 49
 
         # update rate for target model.
         self.TAU = 0.01
@@ -67,7 +66,7 @@ class DDPG(DRL):
     def _build_actor(self):
         """Actor model.
         """
-        inputs = Input(shape=(3,), name='state_input')
+        inputs = Input(shape=(49,), name='state_input')
         x = Dense(40, activation='relu')(inputs)
         x = Dense(40, activation='relu')(x)
         x = Dense(1, activation='tanh')(x)
@@ -81,7 +80,7 @@ class DDPG(DRL):
     def _build_critic(self):
         """Critic model.
         """
-        sinput = Input(shape=(3,), name='state_input')
+        sinput = Input(shape=(49,), name='state_input')
         ainput = Input(shape=(1,), name='action_input')
         s = Dense(40, activation='relu')(sinput)
         a = Dense(40, activation='relu')(ainput)
@@ -265,11 +264,13 @@ class DDPG(DRL):
 
             for j in range(200):
                 # chocie action from ε-greedy.
-                x = observation.reshape(-1, 3)
+                x = observation.reshape(-1, 49)
+                print(x)
 
                 # actor action
                 action = self.get_action(x)
-                observation, reward, done, _ = self.env.step(action)
+                print(action)
+                observation, reward, done = self.env.step(action)
                 print("obs:",observation,"rew:",reward,"dn:",done)
                 # add data to experience replay.
                 reward_sum += reward
@@ -323,7 +324,7 @@ class DDPG(DRL):
                 reward_sum = 0
                 observation = self.env.reset()
 
-        self.env.close()
+        # self.env.close()
 
 
 if __name__ == '__main__':
